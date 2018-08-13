@@ -94,7 +94,7 @@ def find_cars(img, ystart, ystop, scale, cspace, hog_channel, svc, X_scaler, ori
 
 
 
-            test_prediction = svc.predict(hog_features)
+            test_prediction = svc.predict(hog_features.reshape(1,-1))
 
             if test_prediction == 1 or show_all_rectangles:
                 xbox_left = np.int(xleft * scale)
@@ -107,28 +107,7 @@ def find_cars(img, ystart, ystop, scale, cspace, hog_channel, svc, X_scaler, ori
 
 def search_car(img):
     draw_img = np.copy(img)
-    # img = img.astype(np.float32) / 255
-    
-    # all_windows = []
 
-    # X_start_stop = [[None, None], [None, None], [None, None], [None, None]]
-    # w0, w1, w2, w3 = 64, 96, 128, 196
-    # o0, o1, o2, o3 = 0.75, 0.75, 0.75, 0.75
-    # XY_window = [(w0, w0), (w1, w1), (w2, w2), (w3, w3)]
-    # XY_overlap = [(o0, o0), (o1, o1), (o2, o2), (o3, o3)]
-    # yi0, yi1, yi2, yi3 = 400, 400, 400, 400
-    # Y_start_stop = [[yi0, yi0 + w0 * 1.25], [yi1, yi1 + w1 * 1.25], [yi2, yi2 + w2 * 1.25], [yi3, yi3 + w3 * 1.25]]
-    #
-    #
-    #
-    # for i in range(len(Y_start_stop)):
-    #     windows = utils.slide_window(img, x_start_stop=X_start_stop[i], y_start_stop=Y_start_stop[i],
-    #                         xy_window=XY_window[i], xy_overlap=XY_overlap[i])
-    #
-    #     all_windows += windows
-
-    # on_windows = utils.search_windows(img, all_windows, svc, X_scaler, spatial_feat=True, hist_feat=True,
-    #                                   hog_channel='ALL')
     windows = []
 
     colorspace = 'YUV'  # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
@@ -186,9 +165,7 @@ def search_car(img):
     heat_map_thresholded = utils.apply_threshold(heat_map,1)
     labels = label(heat_map_thresholded)
     draw_img = utils.draw_labeled_bboxes(draw_img,labels)
-    
-    
-#    draw_img = utils.draw_windows(draw_img,on_windows)
+
     return draw_img
 
 ystart = 400
@@ -201,8 +178,6 @@ img_paths = glob.glob('test_images/*.jpg')
 plt.figure(figsize=(20,68))
 for path in img_paths:
    img = mpimg.imread(path)
-#    out_img = find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size,
-#                    hist_bins)
    out_img = search_car(img)
    test_imgs.append(img)
    out_imgs.append(out_img)
@@ -211,14 +186,13 @@ plt.figure(figsize=(20,68))
 for i in range(len(test_imgs)):
 
    plt.subplot(2*len(test_imgs),2,2*i+1)
-#    plt.title('before thresholds')
    plt.imshow(test_imgs[i])
 
    plt.subplot(2*len(test_imgs),2,2*i+2)
-#    plt.title('after thresholds')
    plt.imshow(out_imgs[i])
 
-#project_outpath = 'vedio_out/project_video_out.mp4'
-#project_video_clip = VideoFileClip("project_video.mp4")
-#project_video_out_clip = project_video_clip.fl_image(search_car)
-#project_video_out_clip.write_videofile(project_outpath, audio=False)
+# #uncomment to run the pipeline on the video
+# project_outpath = 'vedio_out/project_video_out.mp4'
+# project_video_clip = VideoFileClip("project_video.mp4")
+# project_video_out_clip = project_video_clip.fl_image(search_car)
+# project_video_out_clip.write_videofile(project_outpath, audio=False)
